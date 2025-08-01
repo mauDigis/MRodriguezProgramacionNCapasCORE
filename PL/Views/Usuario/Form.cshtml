@@ -1,0 +1,111 @@
+﻿@model ML.Usuario
+@{
+    ViewData["Title"] = "Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4 display-5">Formulario Usuarios</h2>
+
+    @using (Html.BeginForm("Form", "Usuario", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        
+        <div class="card shadow p-4 mb-5 bg-dark text-white">
+            <h3 class="card-title mb-4 ">Información del Usuario</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.IdUsuario, new { @class = "d-none", @id = "lblIdUsuario" })
+                    @Html.TextBoxFor(model => model.IdUsuario, new { @class = "form-control d-none", @id = "txtIdUsuario" })
+
+                    @Html.LabelFor(model => model.UserName, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.UserName, new { @class = "form-control text-center", placeholder = "Nombre de Usuario" })
+                </div>
+
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.Passwrd, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Passwrd, new { @class = "form-control text-center", type = "password", placeholder = "Contraseña" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3 text-center">
+                    @Html.LabelFor(model => model.Nombre, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control text-center", placeholder = "Nombre" })
+                </div>
+                <div class="col-md-4 mb-3 text-center">
+                    @Html.LabelFor(model => model.ApellidoPaterno, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.ApellidoPaterno, new { @class = "form-control text-center", placeholder = "Apellido Paterno" })
+                </div>
+                <div class="col-md-4 mb-3 text-center">
+                    @Html.LabelFor(model => model.ApellidoMaterno, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.ApellidoMaterno, new { @class = "form-control text-center", placeholder = "Apellido Materno" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.Email, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control text-center", type = "email", placeholder = "Correo" })
+                </div>
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.Label("Repeat", "Repite el Correo", new { @class = "form-label fw-bold " })
+                    <input type="email" class="form-control text-center" placeholder="Repite el Correo" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.FechaNacimiento, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.FechaNacimiento, new { @class = "form-control text-center", type = "date", max = DateTime.Now.ToString("yyyy-MM-dd") })
+                </div>
+                <div class="col-md-6 mb-3 text-center">
+                    <label class="form-label fw-bold d-block">Sexo</label>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.Sexo, "M", new { @class = "form-check-input", id = "sexoM" })
+                        <label class="form-check-label" for="sexoM">Masculino</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.Sexo, "F", new { @class = "form-check-input", id = "sexoF" })
+                        <label class="form-check-label" for="sexoF">Femenino</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.Telefono, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Telefono, new { @class = "form-control text-center", placeholder = "Telefono" })
+                </div>
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.Celular, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Celular, new { @class = "form-control text-center", placeholder = "Celular" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.CURP, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.CURP, new { @class = "form-control text-center", placeholder = "CURP" })
+                </div>
+                <div class="col-md-6 mb-3 text-center">
+                    @Html.LabelFor(model => model.Rol, new { @class = "form-label fw-bold" })
+                    @Html.DropDownListFor(model => model.Rol.IdRol,
+                             new SelectList(Model.Rol.Roles, "IdRol", "Nombre"),
+                             "Selecciona un Rol",
+                             new { @class = "form-select btn btn-primary" })
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mt-4 ">
+            @Html.ActionLink("Regresar", "GetAll", "Usuario", null, new { @class = "btn btn-danger px-4 py-2 me-5" })
+
+            <button type="submit" class="btn btn-success px-4 py-2">Guardar</button>
+        </div>
+    }
+</div>
+
+<script src="~/Scripts/jquery-3.7.0.js"></script>
+
+

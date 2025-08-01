@@ -1,0 +1,222 @@
+﻿@model ML.Usuario
+
+@{
+    ViewData["Title"] = "GetAll";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="card shadow p-4 mb-5">
+        <h3 class="card-title mb-4 "></h3>
+        <div class="row">
+            <div class="col-md-6 mb-3 text-center">
+                <div class="row">
+                    <button class="btn btn-outline-primary fw-bold" type="button" id="botonMostrar" onclick="MostrarForm()">
+                        Filtrar
+                    </button>
+                </div>
+
+            </div>
+            <div class="col-md-6 mb-3 text-center">
+                <div class="row">
+                    <button class="btn btn-outline-warning fw-bold" type="button">
+                        Carga Masiva
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="formularioFiltro" class="card shadow p-4 mb-5 bg-dark text-white" style="display: none;">
+    <h3 class="card-title mb-4 ">Búsqueda por Nombre del Usuario.</h3>
+
+    @using (Html.BeginForm("GetAll", "Usuario", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="row">
+
+            <div class="col-md-3 mb-3 text-center">
+                @Html.LabelFor(model => model.Nombre, new { @class = "form-label fw-bold" })
+                @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control text-center", placeholder = "Nombre" })
+            </div>
+            <div class="col-md-3 mb-3 text-center">
+                @Html.LabelFor(model => model.ApellidoPaterno, new { @class = "form-label fw-bold" })
+                @Html.TextBoxFor(model => model.ApellidoPaterno, new { @class = "form-control text-center", placeholder = "ApellidoPaterno" })
+            </div>
+            <div class="col-md-3 mb-3 text-center">
+                @Html.LabelFor(model => model.ApellidoMaterno, new { @class = "form-label fw-bold" })
+                @Html.TextBoxFor(model => model.ApellidoMaterno, new { @class = "form-control text-center", placeholder = "ApellidoMaterno" })
+            </div>
+
+            <div class="col-md-3 mb-3 text-center">
+                @Html.LabelFor(model => model.Rol, new { @class = "form-label fw-bold" })
+                @Html.DropDownListFor(model => model.Rol.IdRol,
+                         new SelectList(Model.Rol.Roles, "IdRol", "Nombre"),
+                         "Selecciona un Rol",
+                         new { @class = "form-select btn btn-primary" })
+            </div>
+            <div class="row">
+                <div class="col-md-6 mt-2 text-center ">
+                    <div class="row w-75">
+                        <button type="button" class="btn btn-danger px-4 py-2 me-5 offset-3" id="btnCerrarForm">Cerrar</button>
+                    </div>
+                </div>
+                <div class="col-md-6  mt-2">
+                    <div class="row w-75">
+                        <button type="submit" class="btn btn-success px-4 py-2 offset-3">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }<!--BeginForm de GetAllByFilter-->
+</div>
+
+<div class="container-fluid">
+    <div class="row m-3">
+        <a href="@Url.Action("Form", "Usuario", new { IdUsuario = 0 })" class="btn btn-outline-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
+                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+            </svg>
+            Agregar Usuario
+        </a>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            @if (Model.Usuarios != null)
+            {
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+                    <div>
+                        Se obtuvieron los siguientes registros:
+                    </div>
+                </div>
+
+                <div class="table table-responsive">
+                    <table class="table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>IdUsuario</th>
+                                <th>UserName</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th>Sexo</th>
+                                <th>Telefono</th>
+                                <th>Celular</th>
+                                <th>Fecha Nacimiento</th>
+                                <th>CURP</th>
+                                <th>Rol</th>
+                                <th>Editar</th>
+                                <th>Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ML.Usuario usuario in Model.Usuarios)
+                            {
+                                <tr>
+                                    <td>@usuario.IdUsuario</td>
+                                    <td>@usuario.UserName</td>
+                                    <td>@usuario.Nombre @usuario.ApellidoPaterno @usuario.ApellidoMaterno</td>
+                                    <td>@usuario.Email</td>
+                                    <td>@usuario.Sexo</td>
+                                    <td>@usuario.Telefono</td>
+                                    <td>@usuario.Celular</td>
+                                    <td>@usuario.FechaNacimiento</td>
+                                    <td>@usuario.CURP</td>
+                                    <td>@usuario.Rol.Nombre</td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-md-auto">
+                                                <a class="btn btn-outline-warning d-flex align-items-center p-2" href="@Url.Action("Form","Usuario", new {IdUsuario = usuario.IdUsuario})">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                    </svg>
+                                                    Editar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-md-auto">
+                                                <button type="button" class="btn btn-outline-danger d-flex align-items-center p-2" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="UsuarioDelete(@usuario.IdUsuario, '@usuario.UserName')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash me-2" viewBox="0 0 16 16">
+                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                                    </svg>
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        @*<a href="@Url.Action("Delete","Usuario", new {IdUsuario = usuario.IdUsuario})" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar el usuario: '+ '@usuario.Nombre')">
+                                Eliminar
+                                </a>*@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    No existen registros para la tabla Usuario. Error: @ViewBag.Message
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Eliminar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estas seguro que deseas eliminar al usuario: <span id="UserName"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a id="btnEliminarUsuario" href="" class="btn btn-danger">Eliminar</a> <!--Con mi id, referencio mi boton-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+    var usuarioDelete = '@Url.Action("Delete", "Usuario")' //Helper de razor
+
+    function UsuarioDelete(IdUsuario, UserName) {
+        $('#UserName').text(UserName)
+        $('#btnEliminarUsuario').attr('href', usuarioDelete + '?IdUsuario=' + IdUsuario)
+
+        //$ = invocar jQuery
+
+        //# = resumo la siguiente sintaxis -> document.getElementById('btnEliminarUsuario')
+
+        //attr = (Atributo) es un metodo
+    }
+</script>
+
+<script type="text/javascript">
+
+    function MostrarForm() {
+        $("#formularioFiltro").slideToggle("slow"); // Muestra u oculta con animación
+    }
+
+    $(document).ready(function() {
+        $('#btnCerrarForm').click(function() {
+            $('#formularioFiltro').fadeOut(); // Oculta el formulario con un efecto de jQuery
+        });
+    });
+
+</script>
