@@ -23,41 +23,54 @@ namespace BL
             {
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
-                    var Nombre = usuario.Nombre;
-                    var ApellidoPaterno = usuario.ApellidoPaterno;
-                    var ApellidoMaterno = usuario.ApellidoMaterno;
+                    #region Operaciones Ternarias
+                    usuario.Nombre = usuario.Nombre == null ? "" : usuario.Nombre;
+                    usuario.ApellidoPaterno = usuario.ApellidoPaterno == null ? "" : usuario.ApellidoPaterno;
+                    usuario.ApellidoMaterno = usuario.ApellidoMaterno == null ? "" : usuario.ApellidoMaterno;
+                    string IdRol = usuario.Rol.IdRol == 0 ? "" : usuario.Rol.IdRol.ToString();
+                    #endregion
 
-                    if (Nombre == null)
-                    {
-                        Nombre = "";
-                    }
-                    
-                    if (ApellidoPaterno == null)
-                    {
-                        ApellidoPaterno = "";
-                    }
+                    /* #region Operador Nulleable
+                    usuario.Nombre = usuario.Nombre ?? ""; //Si es nullo lo inicializa a vacio
+                    usuario.ApellidoPaterno = usuario.ApellidoPaterno ?? "";
+                    usuario.ApellidoMaterno = usuario.ApellidoMaterno ?? "";
+                    #endregion 
+                    */
 
-                    if (ApellidoMaterno == null)
-                    {
-                        ApellidoMaterno = "";
-                    }
+                    // conexion [context.], en donde voy a guardar la informacion [UsuarioGetAllDTOs], ejecutar el SP4 [UsuarioGetAll]
 
-                    // conexion, en donde voy a guardar la informacion , ejecutar el SP4
+                    //#region Stored Procedure
+                    //var queryUsersList = context.
+                    //    UsuarioGetAllDTOs.
+                    //    FromSqlInterpolated(
+                    //    $"EXECUTE UsuarioGetAll @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
+                    //    .ToList();
+                    //#endregion
 
-                    var queryProcedure = context.
+                    #region Query Dynamic
+                    var queryUsersList = context.
                         UsuarioGetAllDTOs.
                         FromSqlInterpolated(
-                        $"EXECUTE UsuarioGetAll @Nombre={Nombre}, @ApellidoPaterno={ApellidoPaterno}, @ApellidoMaterno={ApellidoMaterno}")
+                        $"EXECUTE UsuarioGetAllDynamic @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
                         .ToList();
-                    // FromSqlRaw - SELECT
+                    #endregion
+
+                    //#region Stored Procedure with View
+                    //var queryUsersList = context.
+                    //    UsuarioGetAllDTOs.
+                    //    FromSqlInterpolated(
+                    //    $"EXECUTE UsuarioGetAllView @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
+                    //    .ToList();
+                    //#endregion 
+                    // FromSqlRaw - SELECT 
 
                     // ExecuteSqlRaw   -INSERT UPDATE Y DELETE 
 
-                    if (queryProcedure.Count > 0)
+                    if (queryUsersList.Count > 0)
                     {
                         resultGetUserByFilter.Objects = new List<object>();
 
-                        foreach (var usuarioDB in queryProcedure)
+                        foreach (var usuarioDB in queryUsersList)
                         {
                             ML.Usuario usuarioML = new ML.Usuario();
 
@@ -71,7 +84,7 @@ namespace BL
                             usuarioML.Sexo = usuarioDB.Sexo;
                             usuarioML.Telefono = usuarioDB.Telefono;
                             usuarioML.Celular = usuarioDB.Celular;
-                            usuarioML.FechaNacimiento = usuario.FechaNacimiento;
+                            usuarioML.FechaNacimiento = usuarioDB.FechaNacimiento;
                             usuarioML.CURP = usuarioDB.CURP;
 
                             usuarioML.Rol = new ML.Rol();
@@ -87,7 +100,7 @@ namespace BL
                     {
                         resultGetUserByFilter.Correct = false;
                     }
-
+               
                 }
             }
             catch (Exception ex)

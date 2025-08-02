@@ -19,6 +19,9 @@ namespace PL.Controllers
             usuario.ApellidoPaterno = "";
             usuario.ApellidoMaterno = "";
 
+            usuario.Rol = new ML.Rol();
+            usuario.Rol.IdRol = 0;
+
             ML.Result resultGetAll = BL.Usuario.GetAllSPFilter(usuario);
 
             if (resultGetAll.Correct)
