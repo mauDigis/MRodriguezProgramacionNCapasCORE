@@ -20,14 +20,14 @@
                     @Html.TextBoxFor(model => model.IdUsuario, new { @class = "form-control d-none", @id = "txtIdUsuario" })
 
                     @Html.LabelFor(model => model.UserName, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.UserName, new
-                        {
+                    @Html.TextBoxFor(model => model.UserName, new{
+
                             @class = "form-control text-center",
                             placeholder = "Nombre de Usuario",
+
                             onkeypress = "return SinEspacios(this, event)",
-                            id = "txtUserName"
                         })
-                    <p id="msgUsuarioUserName" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
                 </div>
 
                 <div class="col-md-6 mb-3 text-center">
@@ -35,64 +35,71 @@
                     @Html.TextBoxFor(model => model.Passwrd, new
                         {
                             @class = "form-control text-center",
-                            type = "password",
-                            placeholder = "Contraseña"
+                            type = "text",
+                            placeholder = "Contraseña",
+
+                            onblur = "return ValidarPassword(this, event)"
 
                         })
+                    <p id="msgUsuarioPassword" style="font-size: 14px; color: gray; font-weight: bold;"></p>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-4 mb-3 text-center">
                     @Html.LabelFor(model => model.Nombre, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Nombre, new
-                        {
+                    @Html.TextBoxFor(model => model.Nombre, new{
+
                             @class = "form-control text-center",
                             placeholder = "Nombre",
+
                             onkeypress = "return SoloLetras(this, event)",
-                            id = "txtNombre"
+                            
                         })
-                    <p id="msgUsuarioNombre" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
 
                 </div>
                 <div class="col-md-4 mb-3 text-center">
                     @Html.LabelFor(model => model.ApellidoPaterno, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.ApellidoPaterno, new
-                        {
+                    @Html.TextBoxFor(model => model.ApellidoPaterno, new{
+
                             @class = "form-control text-center",
                             placeholder = "Apellido Paterno",
-                            onkeypress = "return SoloLetras(this, event)",
-                            id = "txtApellidoPaterno"
+
+                            onkeypress = "return SoloLetras(this, event)"
 
                         })
-                    <p id="msgUsuarioAppPat" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
 
                 </div>
                 <div class="col-md-4 mb-3 text-center">
                     @Html.LabelFor(model => model.ApellidoMaterno, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.ApellidoMaterno, new
-                        {
+                    @Html.TextBoxFor(model => model.ApellidoMaterno, new{ 
+
                             @class = "form-control text-center",
                             placeholder = "Apellido Materno",
-                            onkeypress = "return SoloLetras(this, event)",
-                            id = "txtApellidoMaterno"
+
+                            onkeypress = "return SoloLetras(this, event)"
                         })
-                    <p id="msgUsuarioAppPat" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Email, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Email, new
-                        {
+                    @Html.TextBoxFor(model => model.Email, new {
+
                             @class = "form-control text-center",
                             type = "email",
                             placeholder = "Correo Electrónico",
-                            onblur = "",
+
+                            onblur = "return ValidarCorreo(this,event)",
                             id = "txtEmail"
 
                         })
+                    <p id="msgUsuarioEmail" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+
                 </div>
                 <div class="col-md-6 mb-3 text-center">
                     @Html.Label("Repeat", "Repite el Correo", new { @class = "form-label fw-bold " })
@@ -128,31 +135,47 @@
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Telefono, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Telefono, new { 
+                    @Html.TextBoxFor(model => model.Telefono, new {
+                        
                         @class = "form-control text-center",
                         placeholder = "Telefono",
-                        onkeypress = "return SoloNumeros(this,event)",
-                        id = "txtTelefono"
-                    
+                        maxlength = "10",
+
+                        onkeypress = "return Solo10Numeros(this, 'msgUsuarioTelefono', event)",
+                        onblur = "return Solo10Numeros(this, 'msgUsuarioTelefono', event)"
                     })
                     <p id="msgUsuarioTelefono" style="font-size: 14px; color: gray; font-weight: bold;"></p>
 
                 </div>
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Celular, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Celular, new { 
+                    @Html.TextBoxFor(model => model.Celular, new {
+                        
                         @class = "form-control text-center", 
-                        placeholder = "Celular" 
-                    
-                    
+                        placeholder = "Celular",
+                        maxlength = "10",
+
+                        onkeypress = "return Solo10Numeros(this, 'msgUsuarioCelular', event)",
+                        onblur = "return Solo10Numeros(this, 'msgUsuarioCelular', event)"
                     })
+                    <p id="msgUsuarioCelular" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.CURP, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.CURP, new { @class = "form-control text-center", placeholder = "CURP" })
+                    @Html.TextBoxFor(model => model.CURP, new{
+                        
+                            @class = "form-control text-center", 
+                            placeholder = "CURP", 
+                            
+                            onblur = "return ValidarCurp(this, event)"
+                        
+                        })
+                    <p id="msgUsuarioCurp" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+
                 </div>
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Rol, new { @class = "form-label fw-bold" })
