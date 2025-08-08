@@ -9,7 +9,7 @@ namespace PL.Controllers
 
         #region Usuario
         [HttpGet]
-        public IActionResult GetAll() 
+        public IActionResult GetAll()
         {
             ML.Usuario usuario = new ML.Usuario(); //Instancia de mi modelo Usuario
 
@@ -32,7 +32,7 @@ namespace PL.Controllers
             {
 
             }
-            
+
             #region Roles
             ML.Result resultRoles = new ML.Result(); //Instancia de resultado
             resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
@@ -96,7 +96,7 @@ namespace PL.Controllers
 
             if (IdUsuario > 0) //Si mi IdUsuario es mayor a 0, lo consulto.
             {
-                ML.Result resultGetUserById = BL.Usuario.GetByIdLINQ(IdUsuario.Value);
+                ML.Result resultGetUserById = BL.Usuario.GetByIdSP(IdUsuario.Value);
 
                 if (resultGetUserById.Correct)
                 {
@@ -117,30 +117,53 @@ namespace PL.Controllers
         [HttpPost] //Enviar y recibir 
         public IActionResult Form(ML.Usuario usuario)
         {
-            if(usuario.IdUsuario == 0) //Si IdUsuario == 0 AGREGA
-            {
-                ML.Result resultAddUser = BL.Usuario.AddLINQ(usuario);
 
-                if (resultAddUser.Correct) 
-                { 
-                
+            //Propiedad que verifica si el modelo enviado al controlador ha pasado todas las validaciones especificadas
+            bool formCorrect = ModelState.IsValid;
+
+            if (formCorrect == true)
+            {
+                if (usuario.IdUsuario == 0) //Si IdUsuario == 0 AGREGA
+                {
+                    ML.Result resultAddUser = BL.Usuario.AddSP(usuario);
+
+                    if (resultAddUser.Correct)
+                    {
+                        return RedirectToAction("GetAll");
+                    }
+                }
+                else //IdUsuario > 0 ACTUALIZA
+                {
+                    ML.Result resultUpdateUser = BL.Usuario.UpdateSP(usuario);
+
+                    return RedirectToAction("Form", new { IdUsuario = usuario.IdUsuario });
+
                 }
             }
-            else //IdUsuario > 0 ACTUALIZA
+            else
             {
-                ML.Result resultUpdateUser = BL.Usuario.UpdateLINQ(usuario);
+                #region Roles
+                ML.Result resultRoles = new ML.Result(); //Instancia de resultado
+                resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
 
-                return RedirectToAction("Form", new { IdUsuario = usuario.IdUsuario});
+                if (resultRoles.Correct)
+                {
+                    usuario.Rol = new ML.Rol();
+                    usuario.Rol.Roles = resultRoles.Objects;  //unboxing lleno mi lista
+                }
+                #endregion
 
+                return View(usuario);
             }
 
             return RedirectToAction("GetAll");
+
         }
 
         public IActionResult Delete(int IdUsuario)
         {
 
-            ML.Result resultDeleteUser = BL.Usuario.DeleteLINQ(IdUsuario);
+            ML.Result resultDeleteUser = BL.Usuario.DeleteSP(IdUsuario);
 
             if (resultDeleteUser.Correct)
             {
