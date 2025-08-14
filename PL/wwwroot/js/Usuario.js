@@ -596,6 +596,15 @@ $(document).ready(function () {
         }
     });
 });
+function ValidarExtension(inputFileCarga) {
+
+    let filename = inputFileCarga.value; 
+
+    console.log(filename);
+
+    return filename.split('.').pop();
+}
+
 
 /*
 function SinEspacios(input, event) {

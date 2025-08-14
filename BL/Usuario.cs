@@ -26,6 +26,8 @@ namespace BL
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
                     #region Operaciones Ternarias
+
+                    //Inicializo los atributos de mi objeto
                     usuario.Nombre = usuario.Nombre == null ? "" : usuario.Nombre;
                     usuario.ApellidoPaterno = usuario.ApellidoPaterno == null ? "" : usuario.ApellidoPaterno;
                     usuario.ApellidoMaterno = usuario.ApellidoMaterno == null ? "" : usuario.ApellidoMaterno;

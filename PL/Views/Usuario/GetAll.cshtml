@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "GetAll";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    string sessionValue = Context.Session.GetString("rutaCorrectos");
 }
 
 <div class="row">
@@ -11,7 +12,7 @@
         <div class="row">
             <div class="col-md-6 mb-3 text-center">
                 <div class="row">
-                    <button class="btn btn-outline-primary fw-bold" type="button" id="botonMostrar" onclick="MostrarForm()">
+                    <button class="btn btn-outline-primary fw-bold" type="button" id="botonMostrarFiltro" onclick="MostrarFormFiltro()">
                         Filtrar
                     </button>
                 </div>
@@ -19,7 +20,7 @@
             </div>
             <div class="col-md-6 mb-3 text-center">
                 <div class="row">
-                    <button class="btn btn-outline-warning fw-bold" type="button">
+                    <button class="btn btn-outline-warning fw-bold" type="button" id="botonMostrarCarga" onclick="MostrarFormCarga()">
                         Carga Masiva
                     </button>
                 </div>
@@ -28,13 +29,13 @@
     </div>
 </div>
 
-<div id="formularioFiltro" class="card shadow p-4 mb-5 bg-dark text-white" style="display: none;">
-    <h3 class="card-title mb-4 ">Búsqueda por Datos del Usuario.</h3>
+@await Html.PartialAsync("_Modal", Model)
 
-    @using (Html.BeginForm("GetAll", "Usuario", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
+@using (Html.BeginForm("GetAll", "Usuario", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div id="formularioFiltro" class="card shadow p-4 mb-5 bg-dark text-white" style="display: none;">
+        <h3 class="card-title mb-4 ">Búsqueda por Datos del Usuario.</h3>
         <div class="row">
-
             <div class="col-md-3 mb-3 text-center">
                 @Html.LabelFor(model => model.Nombre, new { @class = "form-label fw-bold" })
                 @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control text-center", placeholder = "Nombre" })
@@ -58,7 +59,7 @@
             <div class="row">
                 <div class="col-md-6 mt-2 text-center ">
                     <div class="row w-75">
-                        <button type="button" class="btn btn-danger px-4 py-2 me-5 offset-3" id="btnCerrarForm">Cerrar</button>
+                        <button type="button" class="btn btn-danger px-4 py-2 me-5 offset-3" id="btnCerrarFormFiltro">Cerrar</button>
                     </div>
                 </div>
                 <div class="col-md-6  mt-2">
@@ -68,9 +69,44 @@
                 </div>
             </div>
         </div>
+    </div>
 
-    }<!--BeginForm de GetAllByFilter-->
-</div>
+    <div id="formularioCargaMasiva" class="card shadow p-4 mb-5 bg-dark text-white" style="display: none;">
+        <h3 class="card-title mb-4">Carga Masiva de Datos.</h3>
+        <div class="row">
+
+            <div class="col-md-6 mb-3 text-center">
+                <input class="form-check-input" type="radio" value="txt" id="inputArchivoTxt" name="rdbtnArchivo">
+                <label class="form-check-label ms-2 lead" for="inputArchivoTxt"> Archivo de Texto ( .txt )</label>
+            </div>
+            <div class="col-md-6 mb-3 text-center">
+                <input class="form-check-input" type="radio" value="xlsx" id="inputArchivoExcel" name="rdbtnArchivo">
+                <label class="form-check-label ms-2 lead" for="inputArchivoExcel"> Archivo de Excel ( .xlsx )</label>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputFileCarga">Subir un Archivo</label>
+                        <input type="file" class="form-control" id="inputFileCarga" name="inputArchivo" onchange="ValidarArchivo(inputFileCarga, rdbtnArchivo)">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-info px-4 py-2 offset-2">Validar Archivo</button>
+                </div>
+                <div class="col-md-2">
+                    @if (Context.Session.GetString("rutaCorrectos") != "")
+                    {
+                        <a href="@Url.Action("GuardarCargaMasiva", "Usuario")" class="btn btn-outline-success px-4 py-2 offset-2">
+                            Cargar Archivo
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+}<!--BeginForm de GetAllByFilter-->
 
 <div class="container-fluid">
     <div class="row m-3">
@@ -191,6 +227,8 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
+<script type="text/javascript" src="~/js/Usuario.js"></script>
+
 <script type="text/javascript">
 
     var usuarioDelete = '@Url.Action("Delete", "Usuario")' //Helper de razor
@@ -209,14 +247,68 @@
 
 <script type="text/javascript">
 
-    function MostrarForm() {
-        $("#formularioFiltro").slideToggle("slow"); // Muestra u oculta con animación
-    }
+    //--------Funcionalidad FiltrarDatos--------
+    function MostrarFormFiltro() {
+        $("#formularioFiltro").slideToggle("slow"); //Muestra u oculta mi formulario
 
-    $(document).ready(function() {
-        $('#btnCerrarForm').click(function() {
+
+        //Cierra mi formulario
+        $('#btnCerrarFormFiltro').click(function () {
             $('#formularioFiltro').fadeOut(); // Oculta el formulario con un efecto de jQuery
         });
+    }
+
+    //--------Funcionalidad CargaMasiva--------
+    function MostrarFormCarga() {
+        $("#formularioCargaMasiva").slideToggle("slow"); //Muestra u oculta mi formulario
+
+
+        //Cierra mi formulario
+        $('#btnCerrarFormCarga').click(function () {
+            $('#formularioCargaMasiva').fadeOut(); // Oculta el formulario con un efecto de jQuery
+        });
+
+    }
+
+    function ValidarArchivo(inputFileCarga, rdbtnArchivo) {
+
+        console.log(inputFileCarga);
+        console.log(rdbtnArchivo);
+
+        //Validar archivos correctos
+        if ($('input[name="rdbtnArchivo"]:checked').val() == 'txt') {
+
+            let extension = ValidarExtension(inputFileCarga);
+
+            console.log(extension);
+
+            if (extension != 'txt') {
+                alert("El archivo seleccionado no es el correcto. Debe ser .txt")
+                return false;
+
+            } else {
+                alert("Archivo Correcto")
+                return true;
+            }
+
+        } else {
+
+
+        }
+    }
+
+    //Carga el DOM para su manipulación.
+    $(document).ready(function () {
+
+        $("#botonMostrarCarga").click(function () { //Si le doy click a mi boton MostrarCarga se ocula el formulario de filtrado.
+            $("#formularioFiltro").hide();
+        });
+
+        $("#botonMostrarFiltro").click(function () { //Si le doy click a mi boton MostrarFiltro se ocula el formulario de cargaMasiva.
+            $("#formularioCargaMasiva").hide();
+        });
+
+
     });
 
 </script>

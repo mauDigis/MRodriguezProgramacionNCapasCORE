@@ -98,5 +98,7 @@ namespace ML
         public string? CURP { get; set; }
         public Rol? Rol { get; set; } //Defino mi propiedad de mi modelo MLRol para acceder a las propiedades de navegación.
         public List<object>? Usuarios { get; set; } //Definición de una lista de objetos de Usuarios
+        public List<object>? Correctos { get; set; } //Lista de Datos Correctos
+        public List<object>? Errores { get; set; } //Lista de Errores
     }
 }
