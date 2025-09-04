@@ -19,6 +19,9 @@ namespace PL.Controllers
             usuario.ApellidoPaterno = "";
             usuario.ApellidoMaterno = "";
 
+            usuario.Rol = new ML.Rol();
+            usuario.Rol.IdRol = 0;
+
             ML.Result resultGetAll = BL.Usuario.GetAllSPFilter(usuario);
 
             if (resultGetAll.Correct)
@@ -29,7 +32,7 @@ namespace PL.Controllers
             {
 
             }
-
+            
             #region Roles
             ML.Result resultRoles = new ML.Result(); //Instancia de resultado
             resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
@@ -47,6 +50,8 @@ namespace PL.Controllers
         [HttpPost]
         public IActionResult GetAll(ML.Usuario usuario)
         {
+            //Le paso mis datos del FORM.
+
             ML.Result resultGetAll = BL.Usuario.GetAllSPFilter(usuario);
 
             if (resultGetAll.Correct)
