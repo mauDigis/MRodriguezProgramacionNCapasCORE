@@ -1,11 +1,11 @@
 ﻿using DL;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Packaging;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
 
 namespace PL.Controllers
 {
-
     public class UsuarioController : Controller
     {
 
@@ -221,13 +221,146 @@ namespace PL.Controllers
             else
             {
                 //Archivo excel
-            }
+
+                string nombreArchivo = inputArchivo.FileName;      //ExcelJunioIncorrectos.xlsx
+                string extensionArchivo = Path.GetExtension(inputArchivo.FileName);      //.xlsx
+                string extension = inputArchivo.FileName.Split(".")[1];  //xlsx
+                if (inputArchivo.FileName.Split(".")[1] == "xlsx")
+                {
+                    if (inputArchivo != null)
+                    {
+                        // OleDb es una Tecnologia que nos permitir acceder a datos de distinttas fuentes, excel, txt, access
+                        // SqlConection | OleDbConection | SqlCommand | OleDbCommand |SqlAdapter | OleDbAdapter
+
+                        // Constuyo la ruta del archivo
+                        string webRootPath = _webHostEnvironment.WebRootPath;
+                        string nombreCompletoExcel1 = Path.GetFileNameWithoutExtension(inputArchivo.FileName) + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                        string rutaCompletaExcel1 = Path.Combine(webRootPath, "Excel", nombreCompletoExcel1);
+
+                        // Valido si existe mi archivo y lo guardo
+                        if (!System.IO.File.Exists(rutaCompletaExcel1)) //si no existe, lo crea
+                        {
+                            using (FileStream source = new FileStream(rutaCompletaExcel1, FileMode.Create))
+                            {
+                                inputArchivo.CopyTo(source);
+                            }
+                        }
+                        // Leer mi archivo de Excel.
+
+                        ML.Result resultExcel = BL.Usuario.ReadExcelFile("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + rutaCompletaExcel1 + ";Extended Properties=\"Excel 12.0 Xml;HDR=YES\";");
+
+                        //Recibo mis datos y los guardo en una lista
+                        List<object> datosLeidos = resultExcel.Objects;
+
+                        //Por cada fila leida validar y mostrar errores y correctos
+
+                        foreach (ML.Usuario usuarioList in datosLeidos) //Itero mis datos y los guardo en mi arrayDatos.
+                        {
+                           // string[] lineaLeida =
+                           //{
+                           //     filaExcel.Nombre.ToString(),
+                           //     filaExcel.Creditos.ToString(),
+                           //     filaExcel.Costo.ToString(),
+                           //     filaExcel.Semestre.IdSemestre.ToString(),
+                           // };
+
+                            //Declaro e Inicializo un arreglo con 12 valores fijos.
+                            string[] arrayDatos = new string[12];
+
+                            arrayDatos[0] = usuarioList.UserName;
+                            arrayDatos[1] = usuarioList.Nombre;
+                            arrayDatos[2] = usuarioList.ApellidoPaterno;
+                            arrayDatos[3] = usuarioList.ApellidoMaterno;
+                            arrayDatos[4] = usuarioList.Email;
+                            arrayDatos[5] = usuarioList.Passwrd;
+                            arrayDatos[6] = usuarioList.Sexo;
+                            arrayDatos[7] = usuarioList.Telefono;
+                            arrayDatos[8] = usuarioList.Celular;
+                            arrayDatos[9] = usuarioList.FechaNacimiento;
+                            arrayDatos[10] = usuarioList.CURP;
+                            arrayDatos[11] = usuarioList.Rol.IdRol.ToString();
+
+                            string validacionCampos = ValidarFila(arrayDatos); //Invoco mi funcion para validar si la linea leida es correcta o tiene errores.
+
+                            if (validacionCampos.Contains("es correcto")) //Si la linea leida esta bien, lo guardo en la lista correctos.
+                            {
+                                // agregar a la lista de correctos
+                                // usuario.Correctos.Add(validacionCampos);
+
+                                string mensajeCorrectoConLinea = $"{validacionCampos}";
+                                usuario.Correctos.Add(mensajeCorrectoConLinea);
+                            }
+                            else                                          //Si la linea leida tiene errores, lo guardo en la lista errores.
+                            {
+                                // agregar a la lista de errores
+                                //usuario.Errores.Add(validacionCampos);
+
+                                // Aquí agregas el número de línea al mensaje de error
+                                string mensajeErrorConLinea = $"{validacionCampos}";
+                                usuario.Errores.Add(mensajeErrorConLinea);
+                            }
+                        }//foreach
+
+                        //string webRootPath2 = _webHostEnvironment.WebRootPath; //Obtengo la ruta de mi proyecto wwwroot
+
+                        ////Le agrego al nombre del archivo la fecha y hora actual más su extension .txt
+                        //string nombreCompletoExcel = Path.GetFileNameWithoutExtension(inputArchivo.FileName) + DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss") + ".xlsx";
+
+                        if (usuario.Errores.Count > 0) //Si mi lista de errores es mayor a 0
+                        {
+                            // Creo mi archivo con errores en la ruta webRootPath/Txt/Errores/mi archivo
+                            string rutaCompletaExcel = Path.Combine(webRootPath, "Excel", "Errores", nombreCompletoExcel1);
+
+                            //Creo una session para validar si mi archivo tiene errores 
+                            HttpContext.Session.SetString("rutaErrores", rutaCompletaExcel);
+
+                            //Operador de negacion ! -> Invierte el valor booleano
+                            if (!System.IO.File.Exists(rutaCompletaExcel)) //verifica si un archivo no existe en una ruta específica.
+                            {
+                                //StreamWriter trabaja con texto
+                                using (StreamWriter streamWriter = new StreamWriter(rutaCompletaExcel)) //Me ayuda a escribir en una ruta especifica
+                                {
+                                    foreach (var linea in usuario.Errores) //Itero por cada error de mi lista
+                                    {
+                                        streamWriter.WriteLine(linea); //Escribo las lineas de error en mi ruta especifica.
+                                    }
+                                }
+                            }
+                        }
+                        else //Si no tiene errores Todos deben ser correctos
+                        {
+                            // archivo sin errores
+                            // Session["rutaCorrectos"] = rutaCompleta;
+
+                            //Creo mi archivo con las lineas correctas en la ruta webRootPath/Txt/Correctos/mi archivo
+                            string rutaCompletaExcel = Path.Combine(webRootPath, "Excel", "Correctos", nombreCompletoExcel1);
+
+                            //Creo mi session para validar si es correcto y guardar en la base
+                            HttpContext.Session.SetString("rutaCorrectos", rutaCompletaExcel);
+
+                            //Obtengo el valor de una variable de sesión y lo guardo en mi var sesion
+                            var sesion = HttpContext.Session.GetString("rutaCorrectos");
+
+                            if (!System.IO.File.Exists(rutaCompletaExcel)) //Si no existe mi archivo en la ruta
+                            {
+                                //FileStream trabaja directamente con los bytes del archivo. Manipula archivos binarios como imágenes, videos, archivos.
+                                using (FileStream source = new FileStream(rutaCompletaExcel, FileMode.Create)) //FileMode.Create crea o sobrescribe un archivo en la ruta especificada
+
+                                {
+                                    inputArchivo.CopyTo(source); //Copia el contenido de un archivo a otro.
+                                }
+                            }
+                        }
+                    }//inputArchivo != null
+                }//inputArchivo == xlsx
+            }//else
 
             return View(usuario);
         }//GetAll [GET]
 
         public ActionResult GuardarCargaMasiva()
         {
+
             // Extraer la ruta del archivo correcto de la sesion
             string ruta = "";
 
@@ -240,40 +373,80 @@ namespace PL.Controllers
                 ruta = sesion;
             }
 
-            using (StreamReader sr = new StreamReader(ruta))
+            //Descomponer la ruta
+
+            if (ruta.Split(".")[1] == "txt")
             {
-                string linea = String.Empty;
-
-                sr.ReadLine();
-
-                while ((linea = sr.ReadLine()) != null)
+                using (StreamReader sr = new StreamReader(ruta))
                 {
-                    string[] lineaLeida = linea.Split("|");
-                    ML.Usuario usuario = new ML.Usuario();
+                    string linea = String.Empty;
 
-                    usuario.UserName = lineaLeida[0];
-                    usuario.Nombre = lineaLeida[1];
-                    usuario.ApellidoPaterno = lineaLeida[2];
-                    usuario.ApellidoMaterno = lineaLeida[3];
-                    usuario.Email = lineaLeida[4];
-                    usuario.Passwrd = lineaLeida[5];
-                    usuario.Sexo = lineaLeida[6];
-                    usuario.Telefono = lineaLeida[7];
-                    usuario.Celular = lineaLeida[8];
-                    usuario.FechaNacimiento = lineaLeida[9];
-                    usuario.CURP = lineaLeida[10];
+                    sr.ReadLine();
 
-                    usuario.Rol = new ML.Rol();
-                    usuario.Rol.IdRol = Convert.ToInt32(lineaLeida[11]);
+                    while ((linea = sr.ReadLine()) != null)
+                    {
+                        string[] lineaLeida = linea.Split("|");
+                        ML.Usuario usuario = new ML.Usuario();
 
-                    ML.Result resultAddCargaMasiva = BL.Usuario.AddSP(usuario);
+                        usuario.UserName = lineaLeida[0];
+                        usuario.Nombre = lineaLeida[1];
+                        usuario.ApellidoPaterno = lineaLeida[2];
+                        usuario.ApellidoMaterno = lineaLeida[3];
+                        usuario.Email = lineaLeida[4];
+                        usuario.Passwrd = lineaLeida[5];
+                        usuario.Sexo = lineaLeida[6];
+                        usuario.Telefono = lineaLeida[7];
+                        usuario.Celular = lineaLeida[8];
+                        usuario.FechaNacimiento = lineaLeida[9];
+                        usuario.CURP = lineaLeida[10];
 
+                        usuario.Rol = new ML.Rol();
+                        usuario.Rol.IdRol = Convert.ToInt32(lineaLeida[11]);
+
+                        ML.Result resultAddCargaMasiva = BL.Usuario.AddSP(usuario);
+
+                    }
                 }
+            }
+            else if (ruta.Split(".")[1] == "xlsx")
+            {
+                //Leer mi archivo y guardarlo
 
+                //Verifico si existe el archivo en mi ruta
+                if (System.IO.File.Exists(ruta)) //verifica si un archivo existe en una ruta específica.
+                {
+                    //Leo mi archivo
+                    ML.Result resultExcel = BL.Usuario.ReadExcelFile("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + ruta + ";Extended Properties=\"Excel 12.0 Xml;HDR=YES\";");
+
+                    List<object> datosLeidos = resultExcel.Objects;
+
+                    foreach (ML.Usuario user in datosLeidos)
+                    {
+                        ML.Usuario usuario = new ML.Usuario();
+
+                        usuario.UserName = user.UserName;
+                        usuario.Nombre = user.Nombre;
+                        usuario.ApellidoPaterno = user.ApellidoPaterno;
+                        usuario.ApellidoMaterno = user.ApellidoMaterno;
+                        usuario.Email = user.Email;
+                        usuario.Passwrd = user.Passwrd;
+                        usuario.Sexo = user.Sexo;
+                        usuario.Telefono = user.Telefono;
+                        usuario.Celular = user.Celular;
+                        usuario.Sexo = user.Sexo;
+                        usuario.FechaNacimiento = user.FechaNacimiento;
+                        usuario.CURP = user.CURP;
+
+                        usuario.Rol = new ML.Rol(); //Propiedad de Navegación
+                        usuario.Rol.IdRol = user.Rol.IdRol;
+
+                        ML.Result resultAddCargaMasiva = BL.Usuario.AddSP(usuario);
+                    }
+                }
             }
 
             //Limpiar sesion
-            //HttpContext.Session.Remove("rutaCorrectos");
+            HttpContext.Session.Remove("rutaCorrectos");
 
             return RedirectToAction("GetAll");
         }
@@ -322,7 +495,7 @@ namespace PL.Controllers
                 error = error + "Solo se aceptan numeros en: " + lineaLeida[7] + " |";
             }
 
-            if (!Regex.IsMatch(lineaLeida[8], @"^[0-9]+$")) //Celular
+            if (!Regex.IsMatch(lineaLeida[8], @"^([0-9]{10})?$")) //Celular
             {
                 error = error + "Solo se aceptan numeros en: " + lineaLeida[8] + " |";
             }

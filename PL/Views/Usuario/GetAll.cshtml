@@ -95,9 +95,9 @@
                     <button type="submit" class="btn btn-outline-info px-4 py-2 offset-2">Validar Archivo</button>
                 </div>
                 <div class="col-md-2">
-                    @if (Context.Session.GetString("rutaCorrectos") != "")
+                    @if (Context.Session.GetString("rutaCorrectos") != null)
                     {
-                        <a href="@Url.Action("GuardarCargaMasiva", "Usuario")" class="btn btn-outline-success px-4 py-2 offset-2">
+                        <a href="@Url.Action("GuardarCargaMasiva", "Usuario")" class="btn btn-outline-success px-4 py-2 offset-2" name="rdbtnArchivo">
                             Cargar Archivo
                         </a>
                     }
@@ -291,11 +291,27 @@
                 return true;
             }
 
-        } else {
+        } else if ($('input[name="rdbtnArchivo"]:checked').val() == 'xlsx') {
 
+            let extension = ValidarExtension(inputFileCarga);
 
+            console.log(extension);
+
+            if (extension != 'xlsx') {
+                alert("El archivo seleccionado no es el correcto. Debe ser .xlsx")
+                return false;
+
+            } else {
+                alert("Archivo Correcto")
+                return true;
+            }
+
+        }//Else if
+        else{
+            alert("Por favor selecciona un archivo .txt o .xlsx")
+            return false;
         }
-    }
+    }//function
 
     //Carga el DOM para su manipulación.
     $(document).ready(function () {
