@@ -398,5 +398,88 @@ namespace BL
         }//DeleteLINQ User
 
         #endregion
+
+        #region Método de Excel
+
+        //Este metodo me ayuda a leer mi archivo de excel
+        public static ML.Result ReadExcelFile(string conectionString)
+        {
+            ML.Result resultReadExcelFile = new ML.Result();
+
+            try
+            {
+                using (OleDbConnection context = new OleDbConnection(conectionString)) //Creo mi conexión con OleDb
+                {
+                    OleDbCommand oleDbCommand = new OleDbCommand(); //Inicializo mi calse OleDbCommand
+
+                    oleDbCommand.Connection = context;
+                    oleDbCommand.CommandText = "SELECT * FROM [Sheet1$]"; //Consulto mi archivo
+
+                    context.Open();
+
+                    //crea y configura una instancia de OleDbDataAdapter y oleDbCommand como argumento en su constructor.
+                    OleDbDataAdapter oleDbDataAdapter = new OleDbDataAdapter(oleDbCommand); //
+
+                    DataTable dataTable = new DataTable();
+
+                    oleDbDataAdapter.Fill(dataTable); //Lleno mi DataTable gracias a mi Adapter.
+
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        resultReadExcelFile.Objects = new List<object>(); //Inicializo mi lista
+
+                        foreach (DataRow row in dataTable.Rows) //Itero por cada fila de mi datatable
+                        {
+                            // Validar si TODAS las columnas están vacías
+                            bool filaVacia = row.ItemArray.All(
+                                c => c == null || c == DBNull.Value || string.IsNullOrWhiteSpace(c.ToString())
+                            );
+
+                            if (filaVacia)
+                                continue; // Salta a la siguiente fila sin procesar
+
+                            ML.Usuario usuario = new ML.Usuario();
+
+                            usuario.UserName = row[0].ToString();
+                            usuario.Nombre = row[1].ToString();
+                            usuario.ApellidoPaterno = row[2].ToString();
+                            usuario.ApellidoMaterno = row[3].ToString();
+                            usuario.Email = row[4].ToString();
+                            usuario.Passwrd = row[5].ToString();
+                            usuario.Sexo = row[6].ToString();
+                            usuario.Telefono = row[7].ToString();
+                            usuario.Celular = row[8].ToString();
+                            usuario.FechaNacimiento = row[9].ToString();
+                            usuario.CURP = row[10].ToString();
+
+                            usuario.Rol = new ML.Rol();
+                            usuario.Rol.IdRol = Convert.ToInt32(row[11].ToString());
+
+                            resultReadExcelFile.Objects.Add(usuario);
+                        }
+                        resultReadExcelFile.Correct = true;
+                    }
+                    else
+                    {
+                        resultReadExcelFile.Correct = false;
+                    }
+
+                    //if (fileExtension == ".xls")
+                    //    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'"
+
+                    //    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+
+                }
+            }
+            catch (Exception ex)
+            {
+                resultReadExcelFile.Correct = false;
+                resultReadExcelFile.ErrorMessage = ex.Message;
+                resultReadExcelFile.Ex = ex;
+            }
+            return resultReadExcelFile;
+        }
+
+        #endregion
     }//class
 }//namespace

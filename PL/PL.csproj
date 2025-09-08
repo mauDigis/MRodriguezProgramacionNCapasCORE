@@ -24,4 +24,11 @@
     <ProjectReference Include="..\ML\ML.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Excel\Correctos\" />
+    <Folder Include="wwwroot\Excel\Errores\" />
+    <Folder Include="wwwroot\Txt\Correctos\" />
+    <Folder Include="wwwroot\Txt\Errores\" />
+  </ItemGroup>
+
 </Project>
