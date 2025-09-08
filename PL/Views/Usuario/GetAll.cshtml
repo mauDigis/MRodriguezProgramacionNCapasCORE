@@ -69,8 +69,42 @@
             </div>
         </div>
 
-    }<!--BeginForm de GetAllByFilter-->
-</div>
+    <div id="formularioCargaMasiva" class="card shadow p-4 mb-5 bg-dark text-white" style="display: none;">
+        <h3 class="card-title mb-4">Carga Masiva de Datos.</h3>
+        <div class="row">
+
+            <div class="col-md-6 mb-3 text-center">
+                <input class="form-check-input" type="radio" value="txt" id="inputArchivoTxt" name="rdbtnArchivo">
+                <label class="form-check-label ms-2 lead" for="inputArchivoTxt"> Archivo de Texto ( .txt )</label>
+            </div>
+            <div class="col-md-6 mb-3 text-center">
+                <input class="form-check-input" type="radio" value="xlsx" id="inputArchivoExcel" name="rdbtnArchivo">
+                <label class="form-check-label ms-2 lead" for="inputArchivoExcel"> Archivo de Excel ( .xlsx )</label>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputFileCarga">Subir un Archivo</label>
+                        <input type="file" class="form-control" id="inputFileCarga" name="inputArchivo" onchange="ValidarArchivo(inputFileCarga, rdbtnArchivo)">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-info px-4 py-2 offset-2">Validar Archivo</button>
+                </div>
+                <div class="col-md-2">
+                    @if (Context.Session.GetString("rutaCorrectos") != null)
+                    {
+                        <a href="@Url.Action("GuardarCargaMasiva", "Usuario")" class="btn btn-outline-success px-4 py-2 offset-2" name="rdbtnArchivo">
+                            Cargar Archivo
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+}<!--BeginForm de GetAllByFilter-->
 
 <div class="container-fluid">
     <div class="row m-3">
@@ -217,6 +251,75 @@
         $('#btnCerrarForm').click(function() {
             $('#formularioFiltro').fadeOut(); // Oculta el formulario con un efecto de jQuery
         });
+    }
+
+    //--------Funcionalidad CargaMasiva--------
+    function MostrarFormCarga() {
+        $("#formularioCargaMasiva").slideToggle("slow"); //Muestra u oculta mi formulario
+
+
+        //Cierra mi formulario
+        $('#btnCerrarFormCarga').click(function () {
+            $('#formularioCargaMasiva').fadeOut(); // Oculta el formulario con un efecto de jQuery
+        });
+
+    }
+
+    function ValidarArchivo(inputFileCarga, rdbtnArchivo) {
+
+        console.log(inputFileCarga);
+        console.log(rdbtnArchivo);
+
+        //Validar archivos correctos
+        if ($('input[name="rdbtnArchivo"]:checked').val() == 'txt') {
+
+            let extension = ValidarExtension(inputFileCarga);
+
+            console.log(extension);
+
+            if (extension != 'txt') {
+                alert("El archivo seleccionado no es el correcto. Debe ser .txt")
+                return false;
+
+            } else {
+                alert("Archivo Correcto")
+                return true;
+            }
+
+        } else if ($('input[name="rdbtnArchivo"]:checked').val() == 'xlsx') {
+
+            let extension = ValidarExtension(inputFileCarga);
+
+            console.log(extension);
+
+            if (extension != 'xlsx') {
+                alert("El archivo seleccionado no es el correcto. Debe ser .xlsx")
+                return false;
+
+            } else {
+                alert("Archivo Correcto")
+                return true;
+            }
+
+        }//Else if
+        else{
+            alert("Por favor selecciona un archivo .txt o .xlsx")
+            return false;
+        }
+    }//function
+
+    //Carga el DOM para su manipulación.
+    $(document).ready(function () {
+
+        $("#botonMostrarCarga").click(function () { //Si le doy click a mi boton MostrarCarga se ocula el formulario de filtrado.
+            $("#formularioFiltro").hide();
+        });
+
+        $("#botonMostrarFiltro").click(function () { //Si le doy click a mi boton MostrarFiltro se ocula el formulario de cargaMasiva.
+            $("#formularioCargaMasiva").hide();
+        });
+
+
     });
 
 </script>
