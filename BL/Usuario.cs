@@ -45,21 +45,21 @@ namespace BL
 
                     // conexion [context.], en donde voy a guardar la informacion [UsuarioGetAllDTOs], ejecutar el SP4 [UsuarioGetAll]
 
-                    #region Stored Procedure
-                    var queryUsersList = context.
-                        UsuarioGetAllDTOs.
-                        FromSqlInterpolated(
-                        $"EXECUTE UsuarioGetAll @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
-                        .ToList();
-                    #endregion
-
-                    //#region Query Dynamic
+                    //#region Stored Procedure
                     //var queryUsersList = context.
                     //    UsuarioGetAllDTOs.
                     //    FromSqlInterpolated(
-                    //    $"EXECUTE UsuarioGetAllDynamic @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
+                    //    $"EXECUTE UsuarioGetAll @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
                     //    .ToList();
                     //#endregion
+
+                    #region Query Dynamic
+                    var queryUsersList = context.
+                        UsuarioGetAllDTOs.
+                        FromSqlInterpolated(
+                        $"EXECUTE UsuarioGetAllDynamic @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
+                        .ToList();
+                    #endregion
 
                     //#region Stored Procedure with View
                     //var queryUsersList = context.

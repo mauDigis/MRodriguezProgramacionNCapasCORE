@@ -72,38 +72,6 @@ namespace PL.Controllers
             usuario.Errores = new List<object>();
             usuario.Correctos = new List<object>();
 
-            #region Consulta de Usuarios
-            //Inicializo mis variables para no enviar null si no vacios.
-            usuario.Nombre = "";
-            usuario.ApellidoPaterno = "";
-            usuario.ApellidoMaterno = "";
-
-            usuario.Rol = new ML.Rol();
-            usuario.Rol.IdRol = 0;
-
-            ML.Result resultGetAllUsers = BL.Usuario.GetAllSPFilter(usuario);
-
-            if (resultGetAllUsers.Correct)
-            {
-                usuario.Usuarios = resultGetAllUsers.Objects;
-            }
-            else
-            {
-
-            }
-            #endregion
-
-            #region Roles
-            ML.Result resultRoles = new ML.Result(); //Instancia de resultado
-            resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
-
-            if (resultRoles.Correct)
-            {
-                usuario.Rol = new ML.Rol();
-                usuario.Rol.Roles = resultRoles.Objects;
-            }
-            #endregion
-
             if (rdbtnArchivo == null) //Si mi rdbtn es null consulto mis usuarios
             {
                 // Todo el codigo de busqueda abierta
@@ -119,6 +87,17 @@ namespace PL.Controllers
                 {
 
                 }
+
+                #region Roles
+                ML.Result resultRoles = new ML.Result(); //Instancia de resultado
+                resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
+
+                if (resultRoles.Correct)
+                {
+                    usuario.Rol = new ML.Rol();
+                    usuario.Rol.Roles = resultRoles.Objects;
+                }
+                #endregion
 
             }
 
@@ -218,7 +197,7 @@ namespace PL.Controllers
                     }
                 }
             }
-            else
+            else if(rdbtnArchivo == "xlsx") 
             {
                 //Archivo excel
 
@@ -624,6 +603,15 @@ namespace PL.Controllers
 
             return RedirectToAction("GetAll");
 
+        }
+
+        #endregion
+
+        #region RandomUser
+
+        public ActionResult RandomUser()
+        {
+            return View();
         }
 
         #endregion
