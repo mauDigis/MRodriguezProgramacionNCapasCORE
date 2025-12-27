@@ -4,13 +4,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link  rel="stylesheet" href="~/css/jquery-ui.css"/>
+
 <div class="container mt-4">
     <h2 class="text-center mb-4 display-5">Formulario Usuarios</h2>
 
-    @using (Html.BeginForm("Form", "Usuario", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("Form", "Usuario", FormMethod.Post, new { enctype = "multipart/form-data", id = "UserForm" }))
     {
 
-        <div class="card shadow p-4 mb-5 bg-dark text-white">
+        <div class="card shadow p-4 mb-5 ">
             <h3 class="card-title mb-4 text-center">Datos del Usuario</h3>
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
@@ -19,19 +21,25 @@
                     @Html.LabelFor(model => model.IdUsuario, new { @class = "d-none", @id = "lblIdUsuario" })
                     @Html.TextBoxFor(model => model.IdUsuario, new { @class = "form-control d-none", @id = "txtIdUsuario" })
 
+                    @*@Html.LabelFor(model => model.UserName, "Nombre del Usuario", new { @class = "form-label fw-bold" })*@
                     @Html.LabelFor(model => model.UserName, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.UserName, new{
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.UserName, new
+                        {
 
                             @class = "form-control text-center",
                             placeholder = "Nombre de Usuario",
 
-                            onkeypress = "return SinEspacios(this, event)",
+                            onkeypress = "return SinEspacios(this, event)"
                         })
-                    <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    <p id="msgUsuarioUserName" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.UserName, null, new { @class = "fs-6 fw-bold text-danger" })
                 </div>
 
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Passwrd, new { @class = "form-label fw-bold" })
+                    <span class="fw-bold fs-4">*</span>
+
                     @Html.TextBoxFor(model => model.Passwrd, new
                         {
                             @class = "form-control text-center",
@@ -42,53 +50,71 @@
 
                         })
                     <p id="msgUsuarioPassword" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.Passwrd, null, new { @class = "fs-6  fw-bold text-danger" })
+
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-4 mb-3 text-center">
                     @Html.LabelFor(model => model.Nombre, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Nombre, new{
+                    <span class="fw-bold fs-4">*</span>
+
+                    @Html.TextBoxFor(model => model.Nombre, new
+                        {
 
                             @class = "form-control text-center",
                             placeholder = "Nombre",
 
                             onkeypress = "return SoloLetras(this, event)",
-                            
+                            onblur = "return SoloLetras(this,event)"
+
                         })
                     <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.Nombre, null, new { @class = "fs-6  fw-bold text-danger" })
 
                 </div>
                 <div class="col-md-4 mb-3 text-center">
                     @Html.LabelFor(model => model.ApellidoPaterno, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.ApellidoPaterno, new{
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.ApellidoPaterno, new
+                        {
 
                             @class = "form-control text-center",
                             placeholder = "Apellido Paterno",
 
-                            onkeypress = "return SoloLetras(this, event)"
+                            onkeypress = "return SoloLetras(this, event)",
+                            onblur = "return SoloLetras(this,event)"
 
                         })
                     <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.ApellidoPaterno, null, new { @class = "fs-6  fw-bold text-danger" })
 
                 </div>
                 <div class="col-md-4 mb-3 text-center">
                     @Html.LabelFor(model => model.ApellidoMaterno, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.ApellidoMaterno, new{ 
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.ApellidoMaterno, new
+                        {
 
                             @class = "form-control text-center",
                             placeholder = "Apellido Materno",
 
-                            onkeypress = "return SoloLetras(this, event)"
+                            onkeypress = "return SoloLetras(this, event)",
+                            onblur = "return SoloLetras(this,event)"
                         })
                     <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.ApellidoMaterno, null, new { @class = "fs-6  fw-bold text-danger" })
+
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Email, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Email, new {
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.Email, new
+                        {
 
                             @class = "form-control text-center",
                             type = "email",
@@ -99,6 +125,7 @@
 
                         })
                     <p id="msgUsuarioEmail" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.Email, null, new { @class = "fs-6  fw-bold text-danger" })
 
                 </div>
                 <div class="col-md-6 mb-3 text-center">
@@ -110,16 +137,22 @@
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.FechaNacimiento, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.FechaNacimiento, new { 
-                        @class = "form-control text-center", 
-                        type = "date", 
-                        max = DateTime.Now.ToString("yyyy-MM-dd") 
-                    
-                    
-                    })
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.FechaNacimiento, new
+                        {
+                            @class = "form-control text-center",
+                            id = "fechaNacimientoPicker"
+                        
+                        })
+
+                    @Html.ValidationMessageFor(model => model.FechaNacimiento, null, new { @class = "fs-6  fw-bold text-danger" })
+
                 </div>
+
                 <div class="col-md-6 mb-3 text-center">
-                    <label class="form-label fw-bold d-block">Sexo</label>
+                    @Html.ValidationMessageFor(model => model.Sexo, null, new { @class = "fs-6  fw-bold text-danger" })
+
+                    <label class="form-label fw-bold d-block" id="Sexo">Sexo<span class="fw-bold fs-4 text-warning"> *</span></label>
                     <div class="form-check form-check-inline">
                         @Html.RadioButtonFor(model => model.Sexo, "M ", new { @class = "form-check-input", id = "sexoM" })
                         <label class="form-check-label" for="sexoM">Masculino</label>
@@ -135,30 +168,35 @@
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Telefono, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Telefono, new {
-                        
-                        @class = "form-control text-center",
-                        placeholder = "Telefono",
-                        maxlength = "10",
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.Telefono, new
+                        {
 
-                        onkeypress = "return Solo10Numeros(this, 'msgUsuarioTelefono', event)",
-                        onblur = "return Solo10Numeros(this, 'msgUsuarioTelefono', event)"
-                    })
+                            @class = "form-control text-center",
+                            placeholder = "Telefono",
+                            maxlength = "10",
+
+                            onkeypress = "return Solo10Numeros(this, 'msgUsuarioTelefono', event)",
+                            onblur = "return Solo10Numeros(this, 'msgUsuarioTelefono', event)"
+                        })
                     <p id="msgUsuarioTelefono" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.Telefono, null, new { @class = "fs-6  fw-bold text-danger" })
 
                 </div>
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.Celular, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.Celular, new {
-                        
-                        @class = "form-control text-center", 
-                        placeholder = "Celular",
-                        maxlength = "10",
+                    @Html.TextBoxFor(model => model.Celular, new
+                        {
 
-                        onkeypress = "return Solo10Numeros(this, 'msgUsuarioCelular', event)",
-                        onblur = "return Solo10Numeros(this, 'msgUsuarioCelular', event)"
-                    })
+                            @class = "form-control text-center",
+                            placeholder = "Celular",
+                            maxlength = "10",
+
+                            onkeypress = "return Solo10Numeros(this, 'msgUsuarioCelular', event)",
+                            onblur = "return Solo10Numeros(this, 'msgUsuarioCelular', event)"
+                        })
                     <p id="msgUsuarioCelular" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.Celular, null, new { @class = "fs-6  fw-bold text-danger" })
 
                 </div>
             </div>
@@ -166,23 +204,33 @@
             <div class="row">
                 <div class="col-md-6 mb-3 text-center">
                     @Html.LabelFor(model => model.CURP, new { @class = "form-label fw-bold" })
-                    @Html.TextBoxFor(model => model.CURP, new{
-                        
-                            @class = "form-control text-center", 
-                            placeholder = "CURP", 
-                            
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.TextBoxFor(model => model.CURP, new
+                        {
+
+                            @class = "form-control text-center",
+                            placeholder = "CURP",
+                            maxlength = "18",
+
                             onblur = "return ValidarCurp(this, event)"
-                        
+
                         })
                     <p id="msgUsuarioCurp" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.CURP, null, new { @class = "fs-6  fw-bold text-danger" })
 
                 </div>
                 <div class="col-md-6 mb-3 text-center">
-                    @Html.LabelFor(model => model.Rol, new { @class = "form-label fw-bold" })
-                    @Html.DropDownListFor(model => model.Rol.IdRol,
-                             new SelectList(Model.Rol.Roles, "IdRol", "Nombre"),
-                             "Selecciona un Rol",
-                             new { @class = "form-select btn btn-primary" })
+                    @Html.LabelFor(model => model.Rol.IdRol, new { @class = "form-label fw-bold" })
+                    <span class="fw-bold fs-4">*</span>
+                    @Html.DropDownListFor(model => model.Rol.IdRol, new SelectList(Model.Rol.Roles, "IdRol", "Nombre"),
+                             "Selecciona un Rol", new
+                             {
+                                 @class = "form-select btn btn-primary",
+                                 onchange = "ValidarDDL(this, event)"
+                             })
+                    <p id="" style="font-size: 14px; color: gray; font-weight: bold;"></p>
+                    @Html.ValidationMessageFor(model => model.Rol.IdRol, null, new { @class = "fs-6  fw-bold text-danger" })
+
                 </div>
             </div>
         </div>
@@ -195,7 +243,32 @@
     }
 </div>
 
-<script src="~/Scripts/jquery-3.7.0.js"></script>
-<script src="~/js/Usuario.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jquery/dist/jquery-ui.js"></script>
+ 
+
+<script type="text/javascript">
+
+    DatePicker();
+    function DatePicker() {
+        $("#fechaNacimientoPicker").datepicker({
+            dateFormat: 'dd-mm-yy',
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-100:+0", // Permite seleccionar años desde hace 100 años hasta el presente
+            maxDate: 0 // La fecha máxima es el día actual
+        });
+
+        $("#fechaNacimientoPicker").prop("readonly", true); // Solo lectura
+    }
+
+    $(document).ready(function () {
+
+    });
+
+</script>
+
+@*<script src="~/js/Usuario.js"></script>*@
+
 
 

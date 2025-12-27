@@ -10,8 +10,20 @@ namespace PL.Controllers
     {
 
         #region Usuario
+
+        //Obtengo acceso a la información del entorno de la aplicación. 
+        //Obtener la ruta de la carpeta raíz de la aplicación, que es la ubicación física de los archivos del proyecto en el servidor.
+
+        //Con esto puedo obtener la ruta raiz de wwwroot.
+        private readonly IWebHostEnvironment _webHostEnvironment;  //Delcaro mi variable privada.
+
+        public UsuarioController(IWebHostEnvironment webHostEnvironment) //Creo mi constructor
+        {
+            _webHostEnvironment = webHostEnvironment;
+        }
+
         [HttpGet]
-        public IActionResult GetAll() 
+        public IActionResult GetAll()
         {
             ML.Usuario usuario = new ML.Usuario(); //Instancia de mi modelo Usuario
 
@@ -24,6 +36,10 @@ namespace PL.Controllers
             usuario.Rol = new ML.Rol();
             usuario.Rol.IdRol = 0;
 
+            //Inicializo mis listas
+            usuario.Errores = new List<object>();
+            usuario.Correctos = new List<object>();
+
             ML.Result resultGetAll = BL.Usuario.GetAllSPFilter(usuario);
 
             if (resultGetAll.Correct)
@@ -34,7 +50,7 @@ namespace PL.Controllers
             {
 
             }
-            
+
             #region Roles
             ML.Result resultRoles = new ML.Result(); //Instancia de resultado
             resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
@@ -50,20 +66,32 @@ namespace PL.Controllers
         }//GetAll [GET]
 
         [HttpPost]
-        public IActionResult GetAll(ML.Usuario usuario)
+        public IActionResult GetAll(ML.Usuario usuario, string rdbtnArchivo, IFormFile inputArchivo)
         {
-            //Le paso mis datos del FORM.
+            //Inicializo mis listas
+            usuario.Errores = new List<object>();
+            usuario.Correctos = new List<object>();
 
-            ML.Result resultGetAll = BL.Usuario.GetAllSPFilter(usuario);
+            #region Consulta de Usuarios
+            //Inicializo mis variables para no enviar null si no vacios.
+            usuario.Nombre = "";
+            usuario.ApellidoPaterno = "";
+            usuario.ApellidoMaterno = "";
 
-            if (resultGetAll.Correct)
+            usuario.Rol = new ML.Rol();
+            usuario.Rol.IdRol = 0;
+
+            ML.Result resultGetAllUsers = BL.Usuario.GetAllSPFilter(usuario);
+
+            if (resultGetAllUsers.Correct)
             {
-                usuario.Usuarios = resultGetAll.Objects;
+                usuario.Usuarios = resultGetAllUsers.Objects;
             }
             else
             {
 
             }
+            #endregion
 
             #region Roles
             ML.Result resultRoles = new ML.Result(); //Instancia de resultado
@@ -516,7 +544,7 @@ namespace PL.Controllers
 
             if (IdUsuario > 0) //Si mi IdUsuario es mayor a 0, lo consulto.
             {
-                ML.Result resultGetUserById = BL.Usuario.GetByIdLINQ(IdUsuario.Value);
+                ML.Result resultGetUserById = BL.Usuario.GetByIdSP(IdUsuario.Value);
 
                 if (resultGetUserById.Correct)
                 {
@@ -537,30 +565,53 @@ namespace PL.Controllers
         [HttpPost] //Enviar y recibir 
         public IActionResult Form(ML.Usuario usuario)
         {
-            if(usuario.IdUsuario == 0) //Si IdUsuario == 0 AGREGA
-            {
-                ML.Result resultAddUser = BL.Usuario.AddLINQ(usuario);
 
-                if (resultAddUser.Correct) 
-                { 
-                
+            //Propiedad que verifica si el modelo enviado al controlador ha pasado todas las validaciones especificadas
+            bool formCorrect = ModelState.IsValid;
+
+            if (formCorrect == true)
+            {
+                if (usuario.IdUsuario == 0) //Si IdUsuario == 0 AGREGA
+                {
+                    ML.Result resultAddUser = BL.Usuario.AddSP(usuario);
+
+                    if (resultAddUser.Correct)
+                    {
+                        return RedirectToAction("GetAll");
+                    }
+                }
+                else //IdUsuario > 0 ACTUALIZA
+                {
+                    ML.Result resultUpdateUser = BL.Usuario.UpdateSP(usuario);
+
+                    return RedirectToAction("Form", new { IdUsuario = usuario.IdUsuario });
+
                 }
             }
-            else //IdUsuario > 0 ACTUALIZA
+            else
             {
-                ML.Result resultUpdateUser = BL.Usuario.UpdateLINQ(usuario);
+                #region Roles
+                ML.Result resultRoles = new ML.Result(); //Instancia de resultado
+                resultRoles = BL.Rol.GetAllRolsLINQ(); // Invoco mi metodo RolGetAll
 
-                return RedirectToAction("Form", new { IdUsuario = usuario.IdUsuario});
+                if (resultRoles.Correct)
+                {
+                    usuario.Rol = new ML.Rol();
+                    usuario.Rol.Roles = resultRoles.Objects;  //unboxing lleno mi lista
+                }
+                #endregion
 
+                return View(usuario);
             }
 
             return RedirectToAction("GetAll");
+
         }
 
         public IActionResult Delete(int IdUsuario)
         {
 
-            ML.Result resultDeleteUser = BL.Usuario.DeleteLINQ(IdUsuario);
+            ML.Result resultDeleteUser = BL.Usuario.DeleteSP(IdUsuario);
 
             if (resultDeleteUser.Correct)
             {
@@ -576,6 +627,7 @@ namespace PL.Controllers
         }
 
         #endregion
+        
 
     }//class
 }//namespace

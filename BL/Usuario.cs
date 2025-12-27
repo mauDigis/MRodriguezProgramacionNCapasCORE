@@ -18,6 +18,7 @@ namespace BL
         //    this._context = context;
         //}
 
+        #region MÉTODOS CON STORED PROCEDURES
         public static ML.Result GetAllSPFilter(ML.Usuario usuario)
         {
             ML.Result resultGetUserByFilter = new ML.Result();
@@ -27,6 +28,8 @@ namespace BL
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
                     #region Operaciones Ternarias
+
+                    //Inicializo los atributos de mi objeto
                     usuario.Nombre = usuario.Nombre == null ? "" : usuario.Nombre;
                     usuario.ApellidoPaterno = usuario.ApellidoPaterno == null ? "" : usuario.ApellidoPaterno;
                     usuario.ApellidoMaterno = usuario.ApellidoMaterno == null ? "" : usuario.ApellidoMaterno;
@@ -42,21 +45,21 @@ namespace BL
 
                     // conexion [context.], en donde voy a guardar la informacion [UsuarioGetAllDTOs], ejecutar el SP4 [UsuarioGetAll]
 
-                    //#region Stored Procedure
-                    //var queryUsersList = context.
-                    //    UsuarioGetAllDTOs.
-                    //    FromSqlInterpolated(
-                    //    $"EXECUTE UsuarioGetAll @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
-                    //    .ToList();
-                    //#endregion
-
-                    #region Query Dynamic
+                    #region Stored Procedure
                     var queryUsersList = context.
                         UsuarioGetAllDTOs.
                         FromSqlInterpolated(
-                        $"EXECUTE UsuarioGetAllDynamic @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
+                        $"EXECUTE UsuarioGetAll @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
                         .ToList();
                     #endregion
+
+                    //#region Query Dynamic
+                    //var queryUsersList = context.
+                    //    UsuarioGetAllDTOs.
+                    //    FromSqlInterpolated(
+                    //    $"EXECUTE UsuarioGetAllDynamic @Nombre={usuario.Nombre}, @ApellidoPaterno={usuario.ApellidoPaterno}, @ApellidoMaterno={usuario.ApellidoMaterno}, @IdRol={IdRol}")
+                    //    .ToList();
+                    //#endregion
 
                     //#region Stored Procedure with View
                     //var queryUsersList = context.
@@ -103,7 +106,7 @@ namespace BL
                     {
                         resultGetUserByFilter.Correct = false;
                     }
-               
+
                 }
             }
             catch (Exception ex)
@@ -116,87 +119,7 @@ namespace BL
             return resultGetUserByFilter;
         }
 
-
-        #region MÉTODOS CON LINQ
-        public static ML.Result GetAllLINQ()
-        {
-            ML.Result resultGetAllUsers = new ML.Result();
-
-            try
-            {
-                using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
-                {
-                    var queryResult = (from usuarioDB in context.Usuarios
-                                       join rolDB in context.Rols on usuarioDB.IdRol equals rolDB.IdRol
-                                       select new
-                                       {
-                                           usuarioDB.IdUsuario,
-                                           usuarioDB.UserName,
-                                           NombreUsuario = usuarioDB.Nombre,
-                                           usuarioDB.ApellidoPaterno,
-                                           usuarioDB.ApellidoMaterno,
-                                           usuarioDB.Email,
-                                           usuarioDB.Passwrd,
-                                           usuarioDB.Sexo,
-                                           usuarioDB.Telefono,
-                                           usuarioDB.Celular,
-                                           usuarioDB.FechaNacimiento,
-                                           usuarioDB.Curp,
-                                           rolDB.IdRol,
-                                           NombreRol = rolDB.Nombre
-                                       }).ToList();
-
-                    if (queryResult.Count > 0)
-                    {
-                        resultGetAllUsers.Objects = new List<object>();
-
-                        foreach (var usuarioOBJ in queryResult)
-                        {
-                            ML.Usuario usuario = new ML.Usuario();
-
-                            usuario.IdUsuario = usuarioOBJ.IdUsuario;
-                            usuario.UserName = usuarioOBJ.UserName;
-                            usuario.Nombre = usuarioOBJ.NombreUsuario;
-                            usuario.ApellidoPaterno = usuarioOBJ.ApellidoPaterno;
-                            usuario.ApellidoMaterno = usuarioOBJ.ApellidoMaterno;
-                            usuario.Email = usuarioOBJ.Email;
-                            usuario.Passwrd = usuarioOBJ.Passwrd;
-                            usuario.Sexo = usuarioOBJ.Sexo;
-                            usuario.Telefono = usuarioOBJ.Telefono;
-                            usuario.Celular = usuarioOBJ.Celular;
-                            usuario.FechaNacimiento = usuarioOBJ.FechaNacimiento;
-                            usuario.CURP = usuarioOBJ.Curp;
-
-                            usuario.Rol = new ML.Rol();
-
-                            usuario.Rol.IdRol = usuarioOBJ.IdRol;
-                            usuario.Rol.Nombre = usuarioOBJ.NombreRol;
-
-                            resultGetAllUsers.Objects.Add(usuario);
-                        }
-
-                        resultGetAllUsers.Correct = true;
-
-                    }
-                    else
-                    {
-                        resultGetAllUsers.ErrorMessage = "No se obtuvieron los usuarios";
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                resultGetAllUsers.Correct = false;
-                resultGetAllUsers.ErrorMessage = ex.Message;
-                resultGetAllUsers.Ex = ex;
-            }
-
-
-            return resultGetAllUsers;
-        }//GetAllLINQ
-
-        public static ML.Result GetByIdLINQ(int IdUsuario)
+        public static ML.Result GetByIdSP(int IdUsuario)
         {
             ML.Result resultGetByIdUser = new ML.Result();
 
@@ -204,35 +127,37 @@ namespace BL
             {
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
-                    var queryResult = (from usuarioDB in context.Usuarios
-                                       join rolDB in context.Rols on usuarioDB.IdRol equals rolDB.IdRol
-                                       where usuarioDB.IdUsuario == IdUsuario
-                                       select usuarioDB).SingleOrDefault();
+                    #region Stored Procedure
+                    var resultQuery = context.UsuarioGetAllDTOs.
+                        FromSqlInterpolated(
+                        $"EXECUTE UsuarioGetById @IdUsuario={IdUsuario}").AsEnumerable().SingleOrDefault();
+                    #endregion
 
-                    if (queryResult != null)
+                    if (resultQuery != null)
                     {
-                        ML.Usuario usuario = new ML.Usuario();
+                        ML.Usuario usuario =  new ML.Usuario();
 
-                        usuario.IdUsuario = queryResult.IdUsuario;
-
-                        usuario.UserName = queryResult.UserName;
-                        usuario.Nombre = queryResult.Nombre;
-                        usuario.ApellidoPaterno = queryResult.ApellidoPaterno;
-                        usuario.ApellidoMaterno = queryResult.ApellidoMaterno;
-                        usuario.Email = queryResult.Email;
-                        usuario.Passwrd = queryResult.Passwrd;
-                        usuario.Sexo = queryResult.Sexo;
-                        usuario.Telefono = queryResult.Telefono;
-                        usuario.Celular = queryResult.Celular;
-                        usuario.FechaNacimiento = queryResult.FechaNacimiento;
-                        usuario.CURP = queryResult.Curp;
+                        usuario.IdUsuario = resultQuery.IdUsuario;
+                        usuario.UserName = resultQuery.UserName;
+                        usuario.Nombre = resultQuery.UsuarioNombre;
+                        usuario.ApellidoPaterno = resultQuery.ApellidoPaterno;
+                        usuario.ApellidoMaterno = resultQuery.ApellidoMaterno;
+                        usuario.Email = resultQuery.Email;
+                        usuario.Passwrd = resultQuery.Passwrd;
+                        usuario.Sexo = resultQuery.Sexo;
+                        usuario.Telefono = resultQuery.Telefono;
+                        usuario.Celular = resultQuery.Celular;
+                        usuario.FechaNacimiento = resultQuery.FechaNacimiento;
+                        usuario.CURP = resultQuery.CURP;
 
                         usuario.Rol = new ML.Rol();
-                        usuario.Rol.IdRol = queryResult.IdRol.Value;
 
-                        resultGetByIdUser.Correct = true;
+                        usuario.Rol.IdRol = resultQuery.IdRol;
+                        usuario.Rol.Nombre = resultQuery.RolNombre;
 
                         resultGetByIdUser.Object = usuario;
+
+                        resultGetByIdUser.Correct = true;
 
                     }
                     else
@@ -241,8 +166,6 @@ namespace BL
                     }
 
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -254,34 +177,36 @@ namespace BL
             return resultGetByIdUser;
         }
 
-        public static ML.Result AddLINQ(ML.Usuario usuario)
+        public static ML.Result AddSP(ML.Usuario usuario)
         {
             ML.Result resultAddUser = new ML.Result();
+
+            usuario.Celular = usuario.Celular == null ? "" : usuario.Celular;
 
             try
             {
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
-                    DL.Usuario usuarioDL = new DL.Usuario();
 
-                    usuarioDL.UserName = usuario.UserName;
-                    usuarioDL.Nombre = usuario.Nombre;
-                    usuarioDL.ApellidoPaterno = usuario.ApellidoPaterno;
-                    usuarioDL.ApellidoMaterno = usuario.ApellidoMaterno;
-                    usuarioDL.Email = usuario.Email;
-                    usuarioDL.Passwrd = usuario.Passwrd;
-                    usuarioDL.Sexo = usuario.Sexo;
-                    usuarioDL.Telefono = usuario.Telefono;
-                    usuarioDL.Celular = usuario.Celular;
-                    usuarioDL.FechaNacimiento = usuario.FechaNacimiento;
-                    usuarioDL.Curp = usuario.CURP;
-                    usuarioDL.IdRol = usuario.Rol.IdRol;
+                    #region Stored Procedure
+                    int queryAddList = context.Database.ExecuteSqlInterpolated($@"
+                        EXECUTE UsuarioAdd 
+                            @UserName = {usuario.UserName},
+                            @Nombre = {usuario.Nombre},
+                            @ApellidoPaterno = {usuario.ApellidoPaterno},
+                            @ApellidoMaterno = {usuario.ApellidoMaterno},
+                            @Email = {usuario.Email},
+                            @Passwrd = {usuario.Passwrd},
+                            @Sexo = {usuario.Sexo},
+                            @Telefono = {usuario.Telefono},
+                            @Celular = {usuario.Celular},
+                            @FechaNacimiento = {usuario.FechaNacimiento},
+                            @Curp = {usuario.CURP},
+                            @IdRol = {usuario.Rol.IdRol}
+                        ");
+                    #endregion
 
-                    context.Usuarios.Add(usuarioDL);
-
-                    int affectedRows = context.SaveChanges();
-
-                    if (affectedRows > 0)
+                    if(queryAddList > 0)
                     {
                         resultAddUser.Correct = true;
                     }
@@ -290,7 +215,6 @@ namespace BL
                         resultAddUser.Correct = false;
                     }
                 }
-
 
             }
             catch (Exception ex)
@@ -303,7 +227,7 @@ namespace BL
             return resultAddUser;
         }//AddLINQ User
 
-        public static ML.Result UpdateLINQ(ML.Usuario usuario)
+        public static ML.Result UpdateSP(ML.Usuario usuario)
         {
             ML.Result resultUpdateUser = new ML.Result();
 
@@ -311,40 +235,32 @@ namespace BL
             {
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
-                    var queryResult = (from usuarioDB in context.Usuarios
-                                       where usuarioDB.IdUsuario == usuario.IdUsuario
-                                       select usuarioDB).SingleOrDefault();
+                    #region Stored Procedure
+                    int queryUpdateUser = context.Database.ExecuteSqlInterpolated($@"
+                        EXECUTE UsuarioUpdate 
+                            @IdUsuario = {usuario.IdUsuario},
+                            @UserName = {usuario.UserName},
+                            @Nombre = {usuario.Nombre},
+                            @ApellidoPaterno = {usuario.ApellidoPaterno},
+                            @ApellidoMaterno = {usuario.ApellidoMaterno},
+                            @Email = {usuario.Email},
+                            @Passwrd = {usuario.Passwrd},
+                            @Sexo = {usuario.Sexo},
+                            @Telefono = {usuario.Telefono},
+                            @Celular = {usuario.Celular},
+                            @FechaNacimiento = {usuario.FechaNacimiento},
+                            @Curp = {usuario.CURP},
+                            @IdRol = {usuario.Rol.IdRol}
+                        ");
+                    #endregion
 
-                    if (queryResult != null)
+                    if (queryUpdateUser > 0)
                     {
-                        queryResult.UserName = usuario.UserName;
-                        queryResult.Nombre = usuario.Nombre;
-                        queryResult.ApellidoPaterno = usuario.ApellidoPaterno;
-                        queryResult.ApellidoMaterno = usuario.ApellidoMaterno;
-                        queryResult.Email = usuario.Email;
-                        queryResult.Passwrd = usuario.Passwrd;
-                        queryResult.Sexo = usuario.Sexo;
-                        queryResult.Telefono = usuario.Telefono;
-                        queryResult.Celular = usuario.Celular;
-                        queryResult.FechaNacimiento = usuario.FechaNacimiento;
-                        queryResult.Curp = usuario.CURP;
-                        queryResult.IdRol = usuario.Rol.IdRol;
-
-                        int affectedRows = context.SaveChanges();
-
-                        if (affectedRows > 0)
-                        {
-                            resultUpdateUser.Correct = true;
-                        }
-                        else
-                        {
-                            resultUpdateUser.Correct = false;
-                        }
-
+                        resultUpdateUser.Correct = true;
                     }
                     else
                     {
-                        resultUpdateUser.ErrorMessage = $"No se actualizo el usuario  {usuario.UserName}"; //Interpolacion de cadenas
+                        resultUpdateUser.Correct = false;
                     }
                 }
 
@@ -359,7 +275,7 @@ namespace BL
             return resultUpdateUser;
         }//UpdateLINQ User
 
-        public static ML.Result DeleteLINQ(int IdUsuario)
+        public static ML.Result DeleteSP(int IdUsuario)
         {
             ML.Result resultDeleteUser = new ML.Result();
 
@@ -367,26 +283,17 @@ namespace BL
             {
                 using (DL.MrodriguezProgramacionNcapasContext context = new DL.MrodriguezProgramacionNcapasContext())
                 {
-                    var queryResult = (from usuarioDB in context.Usuarios
-                                       where usuarioDB.IdUsuario == IdUsuario
-                                       select usuarioDB).SingleOrDefault();
+                    var queryResult = context.Database.ExecuteSqlInterpolated($"EXECUTE UsuarioDelete @IdUsuario = {IdUsuario}");
 
-
-                    if (queryResult != null)
+                    if (queryResult > 0)
                     {
-                        context.Usuarios.Remove(queryResult);
-
-                        int affectedRows = context.SaveChanges();
-
-                        if (affectedRows > 0)
-                        {
-                            resultDeleteUser.Correct = true;
-                        }
-                        else
-                        {
-                            resultDeleteUser.Correct = false;
-                        }
+                        resultDeleteUser.Correct = true;
                     }
+                    else
+                    {
+                        resultDeleteUser.Correct = false;
+                    }
+                    
                 }
 
             }

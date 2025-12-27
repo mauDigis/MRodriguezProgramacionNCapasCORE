@@ -1,0 +1,128 @@
+﻿@model ML.Usuario
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div>
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Estatus del Archivo</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">a</button>
+                </div>
+                <div class="modal-body">
+                    @if (Model.Errores.Count > 0)
+                    {
+                        <table class="table caption-top">
+                            <caption>Tabla de Errores</caption>
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col"># Linea</th>
+                                    <th scope="col">Errores</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var error in Model.Errores)
+                                {
+                                    <tr>
+                                        <td>
+                                            @{
+                                                string[] numerosDeLineas = error.ToString().Split(":");
+                                                string numeroLinea = numerosDeLineas[0];
+
+                                                <span>
+                                                    @numeroLinea
+                                                </span>
+                                                <br />
+
+                                            }
+                                        </td>
+                                        <td class="text-danger">
+                                            @{
+                                                string[] erroresArray = error.ToString().Split("|");
+                                                foreach (var item in erroresArray)
+                                                {
+                                                    <span>
+                                                        @item
+                                                    </span>
+                                                    <br />
+                                                }
+                                            }
+
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    @if (Model.Correctos.Count > 0)
+                    {
+                        <table class="table caption-top">
+                            <caption>Tabla de datos Correctos</caption>
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col"># Linea</th>
+                                    <th scope="col">Correctos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var correcto in Model.Correctos)
+                                {
+                                    <tr>
+                                        <td>
+                                            @{
+                                                // Separa el string usando ":"
+                                                string[] numerosDeLineas = correcto.ToString().Split(":");
+
+                                                // Obtiene el número de línea (el primer elemento del array)
+                                                string numeroLinea = numerosDeLineas[0];
+
+
+                                                <span>
+                                                    @numeroLinea
+                                                </span>
+                                                <br />
+
+                                            }
+                                        </td>
+                                        <td class="text-success">
+                                            @{
+                                                string[] correctosArray = correcto.ToString().Split("|");
+                                                foreach (var item in correctosArray)
+                                                {
+                                                    <span>
+                                                        @item
+                                                    </span>
+                                                    <br />
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                <div class="modal-footer">
+                    @* <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cerrar</button> *@
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Validamos si las listas tienen datos para mostrar el modal-->
+    @if (Model.Errores.Count > 0 || Model.Correctos.Count > 0)
+    {
+        <script src="/lib/jquery/dist/jquery.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#staticBackdrop').modal('show');
+            });
+        </script>
+    }
+
+
+</div>
